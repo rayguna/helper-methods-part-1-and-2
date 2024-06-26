@@ -658,7 +658,20 @@ Into
   end
 ```
 
-2. (32 min) Let's modify the movies_controller further by deleting the render statement. Try and go through the code in the controller and delete any render statements where the template matches the action name (only when it matches, Rails won’t figure out when it doesn’t). In short, RoR can recognize the html.erb file located within the views folder if the route and subroute match the class and method name, e.g., movies/new match class MoviesController < ApplicationController ... def new ... end. This is equivalent to movies#new and you can omit it.
+2. (32 min) Let's modify the movies_controller further by deleting the render statement. Try and go through the code in the controller and delete any render statements where the template matches the action name (only when it matches, Rails won’t figure out when it doesn’t). In short, RoR can recognize the html.erb file located within the views folder if the route and subroute match the class and method name, e.g., movies/new match class MoviesController < ApplicationController ... def new ... end. 
+
+You can shorten
+
+```
+#render template: "movies/new"
+```
+into
+
+```
+render "new"
+```
+
+This is because the class name is equivalent to the route address, but the method is not, so you have to retain the method but you could drop the class name.
 
 The final script becomes:
 
@@ -709,7 +722,8 @@ class MoviesController < ApplicationController
       #redirect_to(movies_url, :notice => "Movie created successfully.")
       redirect_to movies_url, notice: "Movie created successfully."
     else
-      render template: "movies/new"
+      #render template: "movies/new"
+      render "new"
     end
   end
 
@@ -756,3 +770,62 @@ end
 ```
 
 ### link_to helper method
+
+RoR has a helper method (or shorthand notation for defining a url as well).
+
+Here are the changes you can make:
+
+
+1. From
+
+```
+  <a href="<%= new_movie_path %>">Add a new movie</a>
+```
+
+To
+```
+  <%= link_to "Add a new movie", new_movie_path %>
+```
+
+
+2. From
+```
+#views/index.html.erb
+
+<a href="<%= movie_path(a_movie) %>">
+  Show details
+</a>
+```
+
+To
+```
+#views/index.html.erb
+
+<%= link_to "Show details", movie_path(a_movie) %>
+```
+
+3. From
+
+```
+a href="<%= movie_path(@the_movie) %>" data-turbo-method="delete">
+  Delete movie
+</a>
+```
+
+To
+
+```
+<%= link_to "Delete movie", movie_path(@the_movie), data: {turbo_method: :delete} %>
+```
+
+or
+
+```
+<%= link_to "Delete movie", @the_movie, data: {turbo_method: :delete} %>
+```
+
+Note that: 
+- in this case, there is an extra argument in the form of a hash.
+- @movie and @the_movie both work. @the_movie is more correct, but RoR somehow is able to trace the object that contains the keyword @movie.
+
+***
