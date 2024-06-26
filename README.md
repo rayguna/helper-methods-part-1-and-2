@@ -267,7 +267,7 @@ By defining methods to refer to routes:
   - Calling the method will output the entire url, 
   - If we ever had to change the routes, you only have to change it in one place without breaking the application.
 
-  ### Define custom methods to our routes
+### Define custom methods to our routes
 
   Add route definition as discussed in the above as show here:
 
@@ -442,4 +442,10 @@ movie_path(@the_movie)
 
 Rails will be able to locate the id automatically.
 
-**Todo: Look over all of the html.erb files within the movies folder and omit the .id attributes accordingly.**
+**To do: Look over all of the html.erb files within the movies folder and omit the .id attributes accordingly.**
+
+
+### Shorten template names
+
+
+### link_to helper method
