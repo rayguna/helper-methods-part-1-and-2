@@ -638,5 +638,121 @@ end
 
 ### Shorten template names
 
+1. if the folder name that the view templates are located inside of matches the name of the controller, and if the action name matches the name of the template, we can just get rid of the whole string! (And the method!). The above script can be made shorter:
+
+From
+
+```
+  def new
+    @the_movie = Movie.new
+
+    render "movies/new"
+  end
+```
+
+Into
+
+```
+ def new
+    @the_movie = Movie.new
+  end
+```
+
+2. (32 min) Let's modify the movies_controller further by deleting the render statement. Try and go through the code in the controller and delete any render statements where the template matches the action name (only when it matches, Rails won’t figure out when it doesn’t). In short, RoR can recognize the html.erb file located within the views folder if the route and subroute match the class and method name, e.g., movies/new match class MoviesController < ApplicationController ... def new ... end. This is equivalent to movies#new and you can omit it.
+
+The final script becomes:
+
+```
+class MoviesController < ApplicationController
+  def new
+    @the_movie = Movie.new
+
+    #render template: "movies/new"
+  end
+
+  def index
+    matching_movies = Movie.all
+
+    @list_of_movies = matching_movies.order({ :created_at => :desc })
+
+    respond_to do |format|
+      format.json do
+        render json: @list_of_movies
+      end
+
+      format.html do
+        #render({ :template => "movies/index" })
+        #render template: "movies/index"
+      end
+    end
+  end
+
+  def show
+    the_id = params.fetch(:id)
+
+    matching_movies = Movie.where({ :id => the_id })
+
+    @the_movie = matching_movies.first
+
+    #render({ :template => "movies/show" })
+  end
+
+  def create
+    @the_movie = Movie.new
+    @the_movie.title = params.fetch("query_title")
+    @the_movie.description = params.fetch("query_description")
+
+    if @the_movie.valid?
+      @the_movie.save
+      
+      #redirect_to("/movies", :notice => "Movie created successfully.")
+      #redirect_to(movies_url, :notice => "Movie created successfully.")
+      redirect_to movies_url, notice: "Movie created successfully."
+    else
+      render template: "movies/new"
+    end
+  end
+
+  def edit
+    the_id = params.fetch(:id)
+
+    matching_movies = Movie.where({ :id => the_id })
+
+    @the_movie = matching_movies.first
+
+    #render({ :template => "movies/edit" })
+  end
+
+  def update
+    the_id = params.fetch(:id)
+    the_movie = Movie.where({ :id => the_id }).first
+
+    the_movie.title = params.fetch("query_title")
+    the_movie.description = params.fetch("query_description")
+
+    if the_movie.valid?
+      the_movie.save
+      #redirect_to("/movies/#{the_movie.id}", :notice => "Movie updated successfully.")
+      #redirect_to(movie_path(the_movie), :notice => "Movie updated successfully.")
+      redirect_to movie_path(the_movie), notice: "Movie updated successfully."
+    else
+      #redirect_to("/movies/#{the_movie.id}", :alert => "Movie failed to update successfully.")
+      #redirect_to(movie_path(the_movie), :alert => "Movie failed to update successfully.")
+      redirect_to movie_path(the_movie), alert: "Movie failed to update successfully."
+    end
+  end
+
+  def destroy
+    the_id = params.fetch(:id)
+    the_movie = Movie.where({ :id => the_id }).first
+
+    the_movie.destroy
+
+    #redirect_to("/movies", :notice => "Movie deleted successfully.")
+    #redirect_to(movies_url, :notice => "Movie deleted successfully.")
+    redirect_to movies_url, notice: "Movie deleted successfully."
+  end
+end
+```
 
 ### link_to helper method
