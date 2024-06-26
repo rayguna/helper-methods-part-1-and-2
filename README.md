@@ -25,6 +25,89 @@ Video: https://share.descript.com/view/bY2qZcJtJHl
 - Try to include the parenthesis as much as possible, however, to make your code more readable especially when you are chaining multiple methods.
 - You may drop the curly braces around hash arguments ONLY if it is the last argunment. If it is the only argument, you can't drop the curly braces!
 
+2. Refactoring the routing command:
+
+a. For the `get` http verb for thei ndex page, you can change it to `root "class#method"`. You can only have one root http route defined and not more than one.
+
+Most verbose
+```
+get ("/movies", controller: "movies", action: "create")
+```
+
+less verbose
+
+```
+get "/movies", controller: "movies", action: "create"
+```
+
+even less verbose
+
+```
+get "/movies" => "movies#create"
+```
+
+The least verbose and most precise.
+
+```
+root "movies#index"
+```
+
+The # symbol is used to indicate an Object#method, which, in this example, is MoviesController#create.
+
+Make this change to refactor the route commands in `config/routes.rb`.
+
+3. For the rest of the routes, you may shorten them into, e.g.,:
+
+From:
+
+```
+get("/movies", controller: "movies", action: "create")
+```
+
+to
+
+```
+get "/movies" => "movies#create"
+```
+
+4. Here is the new routes.rb file:
+
+```
+Rails.application.routes.draw do
+  #get("/", { :controller => "movies", :action => "index" })
+  root "movies#index"
+
+  # Routes for the Movie resource:
+
+  # CREATE
+  #post("/movies", { :controller => "movies", :action => "create" })
+  post "/movies" => "movies#create"
+
+  #get("/movies/new", { :controller => "movies", :action => "new" })
+  get "/movies/new" => "movies#new"
+  
+  # READ
+  #get("/movies", { :controller => "movies", :action => "index" })
+  get "/movies" => "movies#index"
+
+  #get("/movies/:id", { :controller => "movies", :action => "show" })
+  get "/movies/:id" => "movies#show"
+
+  # UPDATE
+  #patch("/movies/:id", { :controller => "movies", :action => "update" })
+  patch "/movies/:id" => "movies#update"
+
+  get("/movies/:id/edit", { :controller => "movies", :action => "edit" })
+  #get "/movies" => "movies#edit"
+
+  # DELETE
+  #delete("/movies/:id", { :controller => "movies", :action => "destroy" })
+  delete "/movies/:id" => "movies#destroy"
+
+  #------------------------------
+end
+
+```
 
 
 ### Appendix A: Ruby Styles
