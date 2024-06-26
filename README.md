@@ -440,7 +440,7 @@ can be written as
 movie_path(@the_movie)
 ```
 
-Rails will be able to locate the id automatically.
+If we just give movie_path an instance of ActiveRecord, then Rails will figure out the ID number for us by searching that record for the id column. Go back through the view templates and remove the .id for that helper method.
 
 **To do: Look over all of the html.erb files within the movies folder and omit the .id attributes accordingly.**
 
