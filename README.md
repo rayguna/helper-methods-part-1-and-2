@@ -1162,6 +1162,80 @@ To
 Hence, you don't have to explicitly state the html form name and id.
 
 
+### D. Refactor the data structure
+
+1. My goal with this form, is to have the params hash end up looking like:
+
+```
+{ :movie => { :title => "Some title", :description => "Some description" } }
+```
+
+Whereas, right now, it looks like:
+
+```
+{ :title => "Some title", :description => "Some description" }
+```
+
+2. Let's modify the script:
+
+From:
+
+```
+<%= form_with(url: movies_path(@movie), data: { turbo: false }) do %>
+
+  <div>
+    <%= label_tag :title%>
+
+    <%= text_field_tag :title, @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description %>
+
+    <%= text_area_tag :description, @movie.description, { rows: 3 } %>
+  </div>
+```
+
+To:
+
+```
+<!-- /movies/new -->
+
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
+  <div>
+    <%= label_tag :title %>
+
+    <%= text_field_tag "movie[title]", @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description %>
+
+    <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
+  </div>
+```
+
+Also modify the script within movies_controller.rb
+```
+# app/controllers/movies_controller.rb
+
+  # ...
+  def create
+    @movie = Movie.new
+    @movie.title = params.fetch(:movie).fetch(:title)
+    @movie.description = params.fetch(:movie).fetch(:description)
+  # ...
+```
+### E. Refactor forms with mass assignment
+
+
+
+### F. Form builder with model
+
+### G. Challenge
+
+
+
 ### Appendix A: Ruby Styles
 
 1. You can write the following hash:
@@ -1211,3 +1285,58 @@ numbers.each { |num| pp num }
 ```
 numbers.select { |num| num > 3 }.sort
 ```
+
+### Appendix B. Extracting data from a form - Bundled sub-hashes in params
+
+1. Getting a dictionary from a form
+
+```
+<!-- app/views/movies/index.html.erb -->
+
+<h1>
+  List of all movies
+</h1>
+
+<form>
+  <input name="zebra">
+  <button>Submit</button>
+</form>
+<!-- ... -->
+```
+
+The output is: Parameters: {"zebra"=>"hi"}
+
+2. Getting an array from a form
+
+```
+<form>
+  <input name="zebra[]">
+  <button>Submit</button>
+</form>
+```
+
+The output is: Parameters: {"zebra"=>["hi"]}
+
+3. Getting an array of multiple elements:
+
+```
+<form>
+  <input name="zebra[]">
+  <input name="zebra[]">
+  <button>Submit</button>
+</form>
+```
+
+The output is: Parameters: {"zebra"=>["hi", "there"]}
+
+4. Getting a nested dictonary from a form:
+
+```
+<form>
+  <input name="zebra[giraffe]">
+  <input name="zebra[elephant]">
+  <button>Submit</button>
+</form>
+```
+
+The output is: Parameters: {"zebra"=>{"giraffe"=>"hi", "elephant"=>"there"}}
