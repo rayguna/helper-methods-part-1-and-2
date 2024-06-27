@@ -824,6 +824,8 @@ Note that the closing </form> tag is replaced with <%end%>
 
 ### B. Label helper method for html forms (12 min)
 
+new.html.erb form
+
 1. Replace all html form elements with RoR helper methods for views/movies/new.html.erb.
 
 Before:
@@ -877,6 +879,70 @@ After:
   <%= button_tag "Create Movie" %>
 <% end %>
 ```
+
+edit.html.erb form - do the same as the above
+
+1. Before:
+
+```
+<form action="/movies/<%= @the_movie.id %>" method="post" data-turbo="false">
+  <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+  
+  <input name="_method" value="patch" type="hidden">
+
+  <div>
+    <label for="title_box">
+      Title
+    </label>
+
+    <input type="text" id="title_box" name="query_title" value="<%= @the_movie.title %>">
+  </div>
+
+  <div>
+    <label for="description_box">
+      Description
+    </label>
+
+    <textarea id="description_box" name="query_description" rows="3"><%= @the_movie.description %></textarea>
+  </div>
+
+  <button>
+    Update Movie
+  </button>
+</form>
+```
+
+After:
+
+```
+<%= form_with(url: movie_path(@the_movie), method: :patch, data: { turbo: false }) do %>
+  <div>
+    <%= label_tag :title_box, "Title" %>
+
+    <%= text_field_tag :query_title, @the_movie.title, {id: "title_box" } %>
+  </div>
+
+  <div>
+    <%= label_tag :description_box, "Description" %>
+
+    <%= text_area_tag :query_description, @the_movie.description, {id: "description_box", rows: 3 } %>
+  </div>
+
+  <%= button_tag "Update Movie" %>
+<% end %>
+```
+- The default method that HTML forms use is get. But Rails is smart, and it knows that many of our forms use post. So by default, the form_with method on our new.html.erb form added the method="post" attribute and the authenticity token.
+
+- Similarly, we can tell form_with exactly which method (HTTP verb) we want to use. In the case of our edit.html.erb form, we actually want the method: :patch, which we pass in as an argument above.
+
+- (16 min) RoR automatically takes into account a hidden authenticity toekn and the method patch.
+
+### C. Refactoring controller since we are done with the views .html.erb files (17 min)
+
+1. Remove curly brackets.
+2. 
+
+
 
 
 ### Appendix A: Ruby Styles
