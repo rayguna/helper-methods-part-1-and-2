@@ -10,6 +10,8 @@ Video: https://share.descript.com/view/bY2qZcJtJHl
 
 ***
 
+### I. HELPER METHODS I
+
 ### A. Starting
 
 1. Type rake grade. All tests passed. 
@@ -110,57 +112,8 @@ end
 ```
 
 
-### Appendix A: Ruby Styles
 
-1. You can write the following hash:
-
-```
-my_hash = { 1 => "pink", 2 => "cookies" }
-```
-
-as the following only if the keys are non-numeric. If the keys are numeric, it will throw an error.
-
-```
-my_hash = { a: "pink", b: "cookies" }
-```
-
-2. `:uniqueness => :scope => :year`, is equivalent to `scope: :year`. 
-
-3. A one-liner:
-
-The following 
-```
-numbers = [8, 3, 1, 4, 3, 9]
-
-numbers.each do |num|
-  pp num
-end
-
-```
-
-is equivalent to
-
-```
-numbers.each do |num| pp num end
-```
-
-Simply translate a block to just one line.
-
-4. Here is a one liner to make a dictionary:
-
-```
-numbers = [8, 3, 1, 4, 3, 9]
-
-numbers.each { |num| pp num }
-```
-
-5. You can do method chaining with a one liner:
-
-```
-numbers.select { |num| num > 3 }.sort
-```
-
-### B. Check Routes
+### C. Check Routes
 
 1. To check the routes, type:
 
@@ -261,13 +214,13 @@ If you instead use the command <%= details_path %>, you will get the following e
 No route matches {:action=>"show", :controller=>"movies"}, missing required keys: {:id}
 ```
 
-### Benefits of Routes method
+### D. Benefits of Routes method
 
 By defining methods to refer to routes: 
   - Calling the method will output the entire url, 
   - If we ever had to change the routes, you only have to change it in one place without breaking the application.
 
-### Define custom methods to our routes
+### E. Define custom methods to our routes
 
   Add route definition as discussed in the above as show here:
 
@@ -302,7 +255,7 @@ end
 
 - We defined the method movie_path and movie_url for all three get, patch, and delete HTTP verbs for this route just by adding it once.
 
-### Amazing! A Direct Application of the route method
+### F. Amazing! A Direct Application of the route method
 
 Let's apply the route method by modifying:
 
@@ -446,7 +399,7 @@ If we just give movie_path an instance of ActiveRecord, then Rails will figure o
 
 **To do: Look over all of the html.erb files within the movies folder and omit the .id attributes accordingly.
 
-### Redirect_to Refactoring
+### G. Redirect_to Refactoring
 
 Within redirect_to() function, change the route to `movies_url`. Note that the methos is called as `movies_url`, rather than the usual `movies_path`.
 
@@ -636,7 +589,7 @@ class MoviesController < ApplicationController
 end
 ```
 
-### Shorten template names
+### H. Shorten template names
 
 1. if the folder name that the view templates are located inside of matches the name of the controller, and if the action name matches the name of the template, we can just get rid of the whole string! (And the method!). The above script can be made shorter:
 
@@ -769,7 +722,7 @@ class MoviesController < ApplicationController
 end
 ```
 
-### link_to helper method
+### I. link_to helper method
 
 RoR has a helper method (or shorthand notation for defining a url as well).
 
@@ -829,3 +782,149 @@ Note that:
 - @movie and @the_movie both work. @the_movie is more correct, but RoR somehow is able to trace the object that contains the keyword @movie.
 
 ***
+
+### II. HELPER METHODS 2
+
+Further refactor what we did in the previous section.
+
+Video: https://share.descript.com/view/TrSygtEDGsx
+
+Lesson: https://learn.firstdraft.com/lessons/161-helper-methods-part-2
+
+
+### A. form_with (3 min)
+
+1. The form_with method has a closing tag like any other html tags.
+
+2. This helper method automatically creates the authenticity token. So, we can omit the authenticity token and condense the code.
+
+Change this
+
+```
+<!-- app/views/movies/new.html.erb -->
+
+
+<form action="/movies" method="post" data-turbo="false">
+  <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+  ...
+</form>
+```
+
+To this
+
+```
+<!-- app/views/movies/new.html.erb -->
+
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
+  ...
+<% end %>
+```
+
+Note that the closing </form> tag is replaced with <%end%>
+
+### B. Label helper method for html forms (12 min)
+
+1. Replace all html form elements with RoR helper methods for views/movies/new.html.erb.
+
+Before:
+
+```
+<!-- app/views/movies/new.html.erb -->
+
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
+
+  <div>
+    <label for="title_box">
+      Title
+    </label>
+
+    <input type="text" id="title_box" name="query_title" value="<%= @the_movie.title %>">
+  </div>
+
+  <div>
+    <label for="description_box">
+      Description
+    </label>
+
+    <textarea id="description_box" name="query_description" rows="3"><%= @the_movie.description %></textarea>
+  </div>
+
+  <button>
+    Create Movie
+  </button>
+
+<% end %> 
+```
+
+After:
+
+```
+<!-- app/views/movies/new.html.erb -->
+
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
+  <div>
+    <%= label_tag :title_box, "Title" %>
+
+    <%= text_field_tag :query_title, @the_movie.title, { id: "title_box" } %>
+  </div>
+
+  <div>
+    <%= label_tag :description_box, "Description" %>
+
+    <%= text_area_tag :query_description, @the_movie.description, { id: "description_box", rows: 3 } %>
+  </div>
+
+  <%= button_tag "Create Movie" %>
+<% end %>
+```
+
+
+### Appendix A: Ruby Styles
+
+1. You can write the following hash:
+
+```
+my_hash = { 1 => "pink", 2 => "cookies" }
+```
+
+as the following only if the keys are non-numeric. If the keys are numeric, it will throw an error.
+
+```
+my_hash = { a: "pink", b: "cookies" }
+```
+
+2. `:uniqueness => :scope => :year`, is equivalent to `scope: :year`. 
+
+3. A one-liner:
+
+The following 
+```
+numbers = [8, 3, 1, 4, 3, 9]
+
+numbers.each do |num|
+  pp num
+end
+
+```
+
+is equivalent to
+
+```
+numbers.each do |num| pp num end
+```
+
+Simply translate a block to just one line.
+
+4. Here is a one liner to make a dictionary:
+
+```
+numbers = [8, 3, 1, 4, 3, 9]
+
+numbers.each { |num| pp num }
+```
+
+5. You can do method chaining with a one liner:
+
+```
+numbers.select { |num| num > 3 }.sort
+```
