@@ -939,10 +939,227 @@ After:
 
 ### C. Refactoring controller since we are done with the views .html.erb files (17 min)
 
+Let's start with `app/controllers/movies_controller.rb`.
+
 1. Remove curly brackets.
-2. 
 
+From:
 
+```
+matching_movies = Movie.where({ :id => the_id })
+```
+
+To
+
+```
+matching_movies = Movie.where( :id => the_id )
+```
+
+An further to:
+
+```
+matching_movies = Movie.where( id: the_id )
+
+```
+
+2. Use methods chaining.
+
+From
+
+```
+# app/controllers/movies_controller.rb
+
+  # ...
+  def show
+    the_id = params.fetch(:id) # FIRST we get the ID
+
+    matching_movies = Movie.where(id: the_id) # THEN we get the set of matching rows (ActiveRecord:Relation)
+
+    @the_movie = matching_movies.first # FINALLY we get one instance of ActiveRecord, or one row
+  end
+  # ...
+```
+
+To
+
+```
+# ...
+  def show
+    @the_movie = Movie.where(id: params.fetch(:id)).first
+  end
+  # ...
+```
+
+Even more precise:
+
+```
+# ...
+  def show
+    @the_movie = Movie.find(id: params.fetch(:id)) 
+  end
+  # ...
+```
+
+As opposed to find_by, which returns nil if the record with the given ID doesn’t exist, find throws an error exception of class ActiveRecord::RecordNotFound.
+
+Once I deploy my app, if I’m using the find method, then this error message shows up as a 404 page, which is the correct behavior when someone tries to visit a resource that doesn’t exist (like /movies/890909820, or some ID number we don’t have in our table). If we used find_by and the query returned a nil, then a 500 page would be shown (“Something went wrong”), which is not the experience we want for our users.
+
+Also, rename @the_movie with just @movie. The variable name should match with the class name.
+
+So, change the above to:
+
+```
+# ...
+  def show
+    @movie = Movie.find(params.fetch(:id))
+  end
+  # ...
+```
+
+3. Also, name @list_of_movies to just @movies
+
+From
+```
+  # ...
+  def index
+    @list_of_movies = Movie.order(created_at: :desc)
+
+    respond_to do |format|
+      format.json do
+        render json: @movies
+      end
+
+      format.html
+    end
+  end
+  # ...
+```
+
+To
+```
+  # ...
+  def index
+    @movies = Movie.order(created_at: :desc)
+
+    respond_to do |format|
+      format.json do
+        render json: @movies
+      end
+
+      format.html
+    end
+  end
+  # ...
+```
+
+Do the same for the rest of the variables. Make them precise. Accordingly, change the variables within .html.erb forms to match. 
+
+4. simplify variable names to match column names.
+
+From
+
+```
+def create
+    @movie = Movie.new
+    @movie.title = params.fetch("query_title")
+    @movie.description = params.fetch("query_description")
+```
+
+To
+```
+@movie.title = params.fetch("title")
+@movie.description = params.fetch("description")
+```
+
+Even more to
+```
+@movie.title = params.fetch(:title)
+@movie.description = params.fetch(:description)
+```
+
+In the params hash, we typically fetch on symbols, rather than strings. We can only use strings and symbols interchangeably in params because it is a special subclass of Hash. You are fetching the hash values directly. 
+
+Change the relevant parameters in the corresponding new.html.erb files as follows.
+
+```
+<!-- app/views/movies/new.html.erb -->
+
+<!-- ... -->
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
+  <div>
+    <%= label_tag :title, "Title" %>
+
+    <%= text_field_tag :title, @movie.title, { id: "title" } %>
+  </div>
+
+  <div>
+    <%= label_tag :description, "Description" %>
+
+    <%= text_area_tag :description, @movie.description, { id: "description", rows: 3 } %>
+  </div>
+<!-- ... -->
+```
+
+Also, fix the corresponding names of the text fields in the corresponding .html.erb forms.
+
+5. Fix more names.
+
+- We don’t need the query_ and we don’t need the _box. Those are names we made up to help use keep track of things, but they aren’t used in a professional codebase.
+- Make sure to make the form element names accordingly with the same names as those in the controller.
+
+6. Simplify the script for form:
+
+From
+```
+<!-- app/views/movies/new.html.erb -->
+
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
+
+  <div>
+    <%= label_tag :title, "Title" %>
+
+    <%= text_field_tag :title, @the_movie.title, { id: "title" } %>
+  </div>
+
+  <div>
+    <%= label_tag :description, "Description" %>
+
+    <%= text_area_tag :description, @the_movie.description, { id: "description", rows: 3 } %>
+  </div>
+
+  <%= button_tag "Create Movie" %>
+
+<% end %> 
+```
+
+To
+
+```
+<!-- app/views/movies/new.html.erb -->
+
+<!-- ... -->
+<%= form_with(url: movie_path(@movie), data: { turbo: false }) do %>
+  <div>
+    <%= label_tag :title %>
+
+    <%= text_field_tag :title, @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description %>
+
+    <%= text_area_tag :description, @movie.description, { rows: 3 } %>
+  </div>
+<!-- ... -->
+```
+
+**Amazing!** Let Rails automatically:
+
+- set the label copy (by calling .capitalize on the :title or :description)
+
+- and allow form_with to set the for="" and id="" attributes (which are just going to default to "title" and "description"):
+
+Hence, you don't have to explicitly state the html form name and id.
 
 
 ### Appendix A: Ruby Styles
