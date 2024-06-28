@@ -1271,6 +1271,8 @@ def create
     movie_attributes = params.require(:movie).permit(:title, :description)
     
     @movie = Movie.new
+    #@movie.title = params.fetch(:movie).fetch(:title)
+    #@movie.description = params.fetch(:movie).fetch(:description)
 ```
 
 ### F. Form builder with model

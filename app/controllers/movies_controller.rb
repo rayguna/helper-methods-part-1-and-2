@@ -39,12 +39,12 @@ class MoviesController < ApplicationController
     #security  fix
     movie_attributes = params.require(:movie).permit(:title, :description)
 
-    @movie = Movie.new
+    @movie = Movie.new(movie_attributes)
     #@movie.title = params.fetch("query_title")
     #@movie.description = params.fetch("query_description")
 
-    @movie.title = params.fetch(:movie).fetch(:title)
-    @movie.description = params.fetch(:movie).fetch(:description)
+    #@movie.title = params.fetch(:movie).fetch(:title)
+    #@movie.description = params.fetch(:movie).fetch(:description)
 
     #@movie = Movie.new
     #@movie.title = params.fetch(:movie).fetch(:title)
@@ -72,8 +72,6 @@ class MoviesController < ApplicationController
   end
 
   def update
-    #security  fix
-    the_movie_attributes = params.require(:movie).permit(:title, :description)
 
     the_id = params.fetch(:id)
     the_movie = Movie.where( id: the_id).first
