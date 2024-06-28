@@ -1627,6 +1627,20 @@ Also, visit: https://stunning-space-guide-4gj565pwgrjcgjw-3000.app.github.dev/ra
 
 6. Note that the command automatically generates for you the `resources :directors` command in the routes.db file. YOu just need to tailor the RCAV files to your own project. 
 
+7. In the auto-generated html files, I see that the concise command called link_to is used.
+
+```
+<h1>New director</h1>
+
+<%= render "form", director: @director %>
+
+<br>
+
+<div>
+  <%= link_to "Back to directors", directors_path %>
+</div>
+```
+
 ### Issues 
 
 - Need advise on best practice on git version tracking. 
