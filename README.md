@@ -1385,3 +1385,13 @@ The output is: Parameters: {"zebra"=>["hi", "there"]}
 ```
 
 The output is: Parameters: {"zebra"=>{"giraffe"=>"hi", "elephant"=>"there"}}
+
+### C. Branching and merging
+
+1. Use gitlens to make a branch from the previous version. call it rg_branch_before-hash-nesting
+
+2. Switch to the newly created branch with `git checkout rg_branch_before-hash-nesting`.
+
+3. Run grade to see if all tests passed.
+
+4. Compare codes with the head.
