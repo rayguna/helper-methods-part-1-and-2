@@ -1162,7 +1162,7 @@ To
 Hence, you don't have to explicitly state the html form name and id.
 
 
-### D. Refactor the data structure
+### D. Refactor the data structure with mass assignment or nested hash
 
 1. My goal with this form, is to have the params hash end up looking like:
 
@@ -1216,6 +1216,7 @@ To:
 ```
 
 Also modify the script within movies_controller.rb
+
 ```
 # app/controllers/movies_controller.rb
 
@@ -1226,9 +1227,17 @@ Also modify the script within movies_controller.rb
     @movie.description = params.fetch(:movie).fetch(:description)
   # ...
 ```
-### E. Refactor forms with mass assignment
+### E. Add a security measure 
 
+Add a line to the create method as follows.
 
+```
+def create
+    #security  fix
+    movie_attributes = params.require(:movie).permit(:title, :description)
+    
+    @movie = Movie.new
+```
 
 ### F. Form builder with model
 
