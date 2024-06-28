@@ -1559,6 +1559,7 @@ Issues:
 - Edit form does not return to main page after the refactoring. -> Look into the def update function within movies_controller. -> problem is fixed.
 - When either title or description is omitted, the error message is not shown on the edit page.
 - Need advise on best practice on git version tracking. 
+- Is there a similar command for to the `rails generate draft:resource table_name field:data_type` which automatically generate all of the RCAV flow?
 
 ### Appendix A: Ruby Styles
 
