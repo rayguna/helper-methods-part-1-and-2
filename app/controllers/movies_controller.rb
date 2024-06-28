@@ -2,7 +2,6 @@ class MoviesController < ApplicationController
   def new
     @movie = Movie.new
 
-    #render template: "movies/new"
   end
 
   def index
@@ -36,12 +35,17 @@ class MoviesController < ApplicationController
   end
 
   def create
-    @movie = Movie.new
+    #movie_attributes = params.fetch(:movie)
+    movie_attributes = params.require(:movie).permit(:title, :description)
+
+    @movie = Movie.new(movie_attributes)
+    
+    ##@movie = Movie.new
     #@movie.title = params.fetch("query_title")
     #@movie.description = params.fetch("query_description")
 
-    @movie.title = params.fetch(:title)
-    @movie.description = params.fetch(:description)
+    ##@movie.title = params.fetch(:movie).fetch(:title)
+    ##@movie.description = params.fetch(:movie).fetch(:description)
 
     #@movie = Movie.new
     #@movie.title = params.fetch(:movie).fetch(:title)
@@ -50,8 +54,6 @@ class MoviesController < ApplicationController
     if @movie.valid?
       @movie.save
       
-      #redirect_to("/movies", :notice => "Movie created successfully.")
-      #redirect_to(movies_url, :notice => "Movie created successfully.")
       redirect_to movies_url, notice: "Movie created successfully."
     else
       render template: "movies/new"
@@ -69,11 +71,13 @@ class MoviesController < ApplicationController
   end
 
   def update
+    movie_attributes = params.require(:movie).permit(:title, :description)
+    
     the_id = params.fetch(:id)
     the_movie = Movie.where( id: the_id).first
 
-    the_movie.title = params.fetch("title")
-    the_movie.description = params.fetch("description")
+    the_movie.title = movie_attributes["title"] #params.fetch("title")
+    the_movie.description = movie_attributes["description"] #params.fetch("description")
 
     if the_movie.valid?
       the_movie.save

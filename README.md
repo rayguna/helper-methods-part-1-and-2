@@ -1228,13 +1228,337 @@ Also modify the script within movies_controller.rb
 ```
 ### E. Refactor forms with mass assignment
 
+1. (39 min) 
 
+make nested hash in new.html.erb:
+
+From
+```
+<% @movie.errors.full_messages.each do |message| %>
+  <p style="color: red;"><%= message %></p>
+<% end %>
+
+<%= form_with(url: movies_path, data: { turbo: false }) do %>
+
+  <div>
+    <%= label_tag :title %>
+
+    <%= text_field_tag :title, @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description %>
+
+    <%= text_area_tag :description, @movie.description, { rows: 3 } %>
+  </div>
+
+  <%= button_tag "Create Movie" %>
+
+<% end %> 
+```
+
+To
+
+```
+<% @movie.errors.full_messages.each do |message| %>
+  <p style="color: red;"><%= message %></p>
+<% end %>
+
+<%= form_with(url: movies_path) do %>
+
+  <div>
+    <%= label_tag :title %>
+
+    <%= text_field_tag "movie[title]", @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description %>
+
+    <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
+  </div>
+
+  <%= button_tag "Create Movie" %>
+
+<% end %> 
+```
+
+The output in the terminal looks as expected: 
+```
+Parameters: {"authenticity_token"=>"[FILTERED]", "movie"=>{"title"=>"some movie", "description"=>"description"}, "button"=>""}
+```
+
+2. When running the grade command, I receive the error:
+
+```
+Unable to find field "Title" that is not disabled
+
+Capybara::ElementNotFound
+```
+
+Probably because of the different data structure.
+
+3. Further modify def create as follows:
+
+From:
+
+```
+  def create
+    @movie = Movie.new
+    @movie.title = params.fetch(:movie).fetch(:title)
+    @movie.description = params.fetch(:movie).fetch(:description)
+```
+
+To:
+
+```
+  def create
+    movie_attributes = params.fetch(:movie)
+
+    @movie = Movie.new(movie_attributes)
+```
+
+Got an error message:
+
+```
+ActiveModel::ForbiddenAttributesError at /movies
+ActiveModel::ForbiddenAttributesError
+```
+
+4. (47 min) Mass attribute is received as an attack. Must specify which parameter is getting mass attribute.
+
+Modify to:
+```
+  def create
+    #movie_attributes = params.fetch(:movie)
+    movie_attributes = params.require(:movie).permit(:title, :description)
+
+    @movie = Movie.new(movie_attributes)
+```
+
+Note that all fields must be listed in the permit function to be checked for existence. An error message will be trigerred when any of the listed fields are missing. 
 
 ### F. Form builder with model
 
+1.Refactor form url.
+
+From:
+```
+<%= form_with(url: movies_path) do %>
+
+  <div>
+    <%= label_tag :title %>
+
+    <%= text_field_tag "movie[title]", @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description %>
+
+    <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
+  </div>
+
+  <%= button_tag "Create Movie" %>
+
+<% end %> 
+
+```
+
+To:
+```
+<%= form_with(model: @movie) do %>
+
+  <div>
+    <%= label_tag :title %>
+
+    <%= text_field_tag "movie[title]", @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description %>
+
+    <%= text_area_tag "movie[description]", @movie.description, { rows: 3 } %>
+  </div>
+
+  <%= button_tag "Create Movie" %>
+
+<% end %> 
+```
+
+You can refer directly to the model/table object.
+
+This shorthand command only works if you had set your route RESTfully within routes.rb:
+
+Example:
+```
+  get "/movies/:id" => "movies#show", as: :movie
+```
+
+2. Now that you refer to the table as model object, you can then call the methods directly and refactor the above code even further as follows:
+
+```
+<!-- new.html.erb -->
+
+<% @movie.errors.full_messages.each do |message| %>
+  <p style="color: red;"><%= message %></p>
+<% end %>
+
+<%= form_with(model: @movie) do |form| %>
+
+  <div>
+    <%= form.label :title %>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 3 %>
+  </div>
+
+  <%= form.button %>
+
+<% end %> 
+```
+
+The form.button helper method is smart because if you had prefilled the forms, the button name will recognize it and automatically change to update. 
+
+You can, however, override the names as follows:
+
+```
+  <%= form.button "howdy" %>
+```
+
+3. You can create default values directly by simply setting the parameters when instantiating the objects as follows.
+```
+#new.html.erb
+
+def new
+  @movie = Movie.new(title:"hi", description: "bye")
+  @movie.save
+``` 
+4. Modify the app/models/movie.rb table to validate both title and description:
+
+```
+class Movie < ApplicationRecord
+  validates :title, presence: true
+  validates :description, presence: true
+end
+```
+
 ### G. Challenge
 
+i. (1 h 2 min) Update the edit form in the same way.
 
+1. From:
+```
+<%= form_with(url: movie_path(@movie), method: :patch, data: { turbo: false }) do %>
+  <div>
+    <%= label_tag :title, "Title" %>
+
+    <%= text_field_tag :title, @movie.title, {id: "title" } %>
+  </div>
+
+  <div>
+    <%= label_tag :description, "Description" %>
+
+    <%= text_area_tag :description, @movie.description, {id: "description", rows: 3 } %>
+  </div>
+
+  <%= button_tag "Update Movie" %>
+<% end %>
+```
+
+To:
+```
+<% @movie.errors.full_messages.each do |message| %>
+  <p style="color: red;"><%= message %></p>
+<% end %>
+
+<%= form_with(model: @movie) do |form| %>
+  <div>
+    <%= form.label :title %>
+
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :description %>
+
+    <%= form.text_area :description, rows: 3 %>
+  </div>
+
+  <%= form.button %>
+<% end %>
+```
+2. I realize that the values are not being updated because you have to modify update method differently from the new method. In the update method, you are passing new parameters to an existing object. In this case, you don't have to instantiate a new object. Here is the new code:
+```
+def update
+    movie_attributes = params.require(:movie).permit(:title, :description)
+    
+    the_id = params.fetch(:id)
+    the_movie = Movie.where( id: the_id).first
+
+    the_movie.title = movie_attributes["title"] #params.fetch("title")
+    the_movie.description = movie_attributes["description"] #params.fetch("description")
+
+    if the_movie.valid?
+      the_movie.save
+      #redirect_to("/movies/#{the_movie.id}", :notice => "Movie updated successfully.")
+      #redirect_to(movie_path(the_movie), :notice => "Movie updated successfully.")
+      redirect_to movie_path(the_movie), notice: "Movie updated successfully."
+    else
+      #redirect_to("/movies/#{the_movie.id}", :alert => "Movie failed to update successfully.")
+      #redirect_to(movie_path(the_movie), :alert => "Movie failed to update successfully.")
+      redirect_to movie_path(the_movie), alert: "Movie failed to update successfully."
+    end
+  end
+```
+
+Note that when you applyrefactoring on one file, you have to follow through for the rest of the RCAV routes!!! 
+
+ii. (1 h 3 min) Generate a new model from scratch.
+
+1. Generate just a table: `rails generate model director name:string dob:date`. This will create just the database tables. 
+```
+helper-methods-part-1-and-2 rg_branch_before-hash-nesting % rails generate model director name:string dob:date
+      invoke  active_record
+      create    db/migrate/20240628164614_create_directors.rb
+      create    app/models/director.rb
+```
+
+2. You also need to type `rails db:migrate`.
+
+```
+helper-methods-part-1-and-2 rg_branch_before-hash-nesting % rails db:migrate
+== 20240628164614 CreateDirectors: migrating ==================================
+-- create_table(:directors)
+   -> 0.1120s
+== 20240628164614 CreateDirectors: migrated (0.1122s) =========================
+
+Annotated (1): app/models/director.rb
+```
+
+3. Build up the entire resource, all the routes, controller, and the seven golden actions: create - post and get, read - get and get, update - patch and get, and delete - delete (CRUD). Do it in the modern way as a practice.
+4. Note that the routes command is very short for RESTful routes, it is just: `resources :directors`.
+5. You can look at the built resources by visiting: `https://stunning-space-guide-4gj565pwgrjcgjw-3000.app.github.dev/rails/info/routes`.
+6. Type in the search box, director to show the new routes.   
+7. Make your own directors controller.
+8. Implement your seven routes.
+9. Build the view templates.
+10. Use all helper methods you know for:
+  - links
+  - url
+  - form elements
+
+iii. TIPs: you can defne the routes in a concise way in just one line:
+```
+resources :movies
+```
+
+Issues:
+- Edit form does not return to main page after the refactoring. -> Look into the def update function within movies_controller. -> problem is fixed.
+- When either title or description is omitted, the error message is not shown on the edit page.
+- Need advise on best practice on git version tracking. 
 
 ### Appendix A: Ruby Styles
 
