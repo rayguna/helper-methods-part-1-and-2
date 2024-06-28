@@ -72,11 +72,14 @@ class MoviesController < ApplicationController
   end
 
   def update
+    #security  fix
+    the_movie_attributes = params.require(:movie).permit(:title, :description)
+
     the_id = params.fetch(:id)
     the_movie = Movie.where( id: the_id).first
 
-    the_movie.title = params.fetch(:title)
-    the_movie.description = params.fetch(:description)
+    the_movie.title = params.fetch(:movie).fetch(:title)
+    the_movie.description = params.fetch(:movie).fetch(:description)
 
     if the_movie.valid?
       the_movie.save
