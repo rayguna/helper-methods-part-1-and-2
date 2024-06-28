@@ -1,9 +1,8 @@
 Rails.application.routes.draw do
+  resources :directors
   #get("/", { :controller => "movies", :action => "index" })
   root "movies#index"
 
-  # Routes for the Director resource:
-  resources :directors 
 
   # Routes for the Movie resource:
   resources :movies

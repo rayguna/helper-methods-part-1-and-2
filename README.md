@@ -1551,16 +1551,92 @@ Annotated (1): app/models/director.rb
   - url
   - form elements
 
-iii. TIPs: you can defne the routes in a concise way in just one line:
+iii. TIPs
+
+1. You can define the routes in a concise way in just one line:
 ```
 resources :movies
 ```
 
-Issues:
+2. You can generate the entire RCAV using the command `rails generate scaffold director name:string dob:date`.
+
+Follow this command with: `rails db:migrate`.
+
+Rather than generating just the table with `rails generate model director name:string dob:date`
+
+3. To reverse table creation, type `rails db:rollback`. Then, type `rails destroy model director name:string dob:date`.
+
+helper-methods-part-1-and-2 main % rails destroy model director name:string dob:date
+      invoke  active_record
+      remove    db/migrate/20240628164614_create_directors.rb
+      remove    app/models/director.rb
+
+ref.: https://www.learneroo.com/modules/137/nodes/769
+
+4. Now, let's execute: `rails generate scaffold director name:string dob:date`. Review the lesson on getting started with scaffolds: https://github.com/rayguna/getting-started-with-scaffolds
+
+```
+helper-methods-part-1-and-2 main % rails generate scaffold director name:string dob:date
+      invoke  active_record
+      create    db/migrate/20240628180729_create_directors.rb
+      create    app/models/director.rb
+      invoke  resource_route
+       route    resources :directors
+      invoke  scaffold_controller
+      create    app/controllers/directors_controller.rb
+      invoke    erb
+      create      app/views/directors
+      create      app/views/directors/index.html.erb
+      create      app/views/directors/edit.html.erb
+      create      app/views/directors/show.html.erb
+      create      app/views/directors/new.html.erb
+      create      app/views/directors/_form.html.erb
+      create      app/views/directors/_director.html.erb
+      invoke    resource_route
+      invoke    jbuilder
+      create      app/views/directors/index.json.jbuilder
+      create      app/views/directors/show.json.jbuilder
+      create      app/views/directors/_director.json.jbuilder
+```
+
+5. Follow up with: `rails db:migrate`. If you don't, you will receive error when you visit ../rails/db.
+
 - Edit form does not return to main page after the refactoring. -> Look into the def update function within movies_controller. -> problem is fixed.
 - When either title or description is omitted, the error message is not shown on the edit page.
+  - The issue was traced with the form command both for def edit and def new. You need to specify the method type. The default method is post. For patch, you have to explicitly state it. However, for post you need to also specify data: {turbo: false}.
+
+  ```
+  <%= form_with(model: @movie, data: {turbo: false}) do |form| %>
+
+  <div>
+    <%= form.label :title %>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 3 %>
+  </div>
+
+  <%= form.button %>
+
+<% end %> 
+  ``` 
+
+Also, visit: https://stunning-space-guide-4gj565pwgrjcgjw-3000.app.github.dev/rails/info/routes to check to see that the directors routes are indeed created.
+
+6. Note that the command automatically generates for you the `resources :directors` command in the routes.db file. YOu just need to tailor the RCAV files to your own project. 
+
+### Issues 
+
 - Need advise on best practice on git version tracking. 
-- Is there a similar command for to the `rails generate draft:resource table_name field:data_type` which automatically generate all of the RCAV flow?
+  - If you encounter any issues, go back to the version where you haven't seen the erorr and create a branch with: git -b branch <version id> to directly create and switch to a new branch. If you only want to create a branch, type git branch <version id>. Then, type git checkout new_branch to switch.
+  - To merge the new branch with the main, you must first create a pull request.
+  - Select your own version, not the appdev version from which you forked repository from.
+  - If there are conflicts, type in the terminal git merge --no-ff branch name.
+  - Review the tabs and resolve conflicts. Checkmark on the version you want to incorporate. Finally, type merge conflicts.
+  - Resolve all conflicts. You have to resolve all conflicts before you can merge. 
+
 
 ### Appendix A: Ruby Styles
 
