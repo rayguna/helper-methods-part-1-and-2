@@ -1227,6 +1227,40 @@ Also modify the script within movies_controller.rb
     @movie.description = params.fetch(:movie).fetch(:description)
   # ...
 ```
+
+3. Do the same refactoring for edit.html.erb
+
+From
+```
+  <div>
+    <%= label_tag :title, "Title" %>
+
+    <%= text_field_tag :title, @movie.title, {id: "title" } %>
+  </div>
+
+  <div>
+    <%= label_tag :description, "Description" %>
+
+    <%= text_area_tag :description, @movie.description, {id: "description", rows: 3 } %>
+  </div>
+```
+
+To
+
+```
+  <div>
+    <%= label_tag :title, "Title" %>
+
+    <%= text_field_tag :title, @movie.title %>
+  </div>
+
+  <div>
+    <%= label_tag :description, "Description" %>
+
+    <%= text_area_tag :description, @movie.description, { rows: 3 } %>
+  </div>
+```
+
 ### E. Add a security measure 
 
 Add a line to the create method as follows.
