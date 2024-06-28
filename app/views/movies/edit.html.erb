@@ -4,7 +4,7 @@
   <p style="color: red;"><%= message %></p>
 <% end %>
 
-<%= form_with(model: @movie) do |form| %>
+<%= form_with(model: @movie, method: :patch) do |form| %>
   <div>
     <%= form.label :title %>
 

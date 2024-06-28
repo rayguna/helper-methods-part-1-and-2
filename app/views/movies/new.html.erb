@@ -12,7 +12,8 @@
   <p style="color: red;"><%= message %></p>
 <% end %>
 
-<%= form_with(model: @movie) do |form| %>
+<!--For create, add the data: {turbo: false}. The default method is "post"-->
+<%= form_with(model: @movie, data: {turbo: false}) do |form| %>
 
   <div>
     <%= form.label :title %>
