@@ -1176,7 +1176,7 @@ Whereas, right now, it looks like:
 { :title => "Some title", :description => "Some description" }
 ```
 
-2. Let's modify the script:
+2. Let's modify the script to make nested hash.
 
 From:
 
